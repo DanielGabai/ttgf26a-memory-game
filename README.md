@@ -181,11 +181,6 @@ View waveforms:
 gtkwave tb.fst tb.gtkw
 ```
 
-Two testbenches are provided:
-
-- `game_fsm_testbench.sv` — unit tests for the FSM in isolation, driving control inputs directly with no debounce or synchronizer latency.
-- `top_testbench.sv` — integration tests for the full top-level module, including the synchronizer and edge detector. Uses `DEBOUNCE_CYCLES=1` to keep simulation fast.
-
 ### Hardware
 
 1. Ensure all switches are low before powering on.
