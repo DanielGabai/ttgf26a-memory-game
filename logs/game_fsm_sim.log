@@ -1,0 +1,59 @@
+VCD info: dumpfile logs/game_fsm_testbench.vcd opened for output.
+
+========================================
+  game_fsm Testbench
+========================================
+
+[TEST 1] Idle & Reset Behavior
+[45000] Reset complete
+  PASS: ptr_reset (S_RST) = 1
+  PASS: seg_mode (Blank) = 0
+
+[TEST 2] Initialization Sequence
+  PASS: lfsr_load = 1
+  PASS: lfsr_en = 1
+  PASS: reg_we = 1
+  PASS: index_inc = 1
+  PASS: delay_load = 1
+  PASS: ptr_reset = 1
+
+[TEST 3] Round 0 Gameplay (Display & Guess)
+  PASS: ptr_reset (Round Start) = 1
+  PASS: seg_mode (Show Num) = 1
+  PASS: delay_en (Running) = 1
+  PASS: delay_en (Dropped to reset timer) = 0
+  PASS: ptr_reset (Prep for input) = 1
+  PASS: seg_mode (Blank for input) = 0
+  PASS: round_inc (Round Beaten!) = 1
+
+[TEST 4] Round 1 Gameplay (Visual Gap & Multi-digit)
+  PASS: seg_mode (Blank for gap) = 0
+  PASS: delay_en (Running gap timer) = 1
+  PASS: index_inc (Move to digit 2) = 1
+  PASS: index_inc (Next guess) = 1
+  PASS: round_inc (Should be 0) = 0
+
+[TEST 5] Lose Condition Lockout
+  PASS: seg_mode (Show F) = 3
+  PASS: seg_mode (Still F) = 3
+
+[TEST 6] Global Reset (Switch 7 flipped low)
+  PASS: seg_mode (Blank - Reset) = 0
+  PASS: ptr_reset (Held in reset) = 1
+
+[TEST 7] Win Condition Lockout
+  PASS: seg_mode (Show C) = 2
+  PASS: seg_mode (Still C) = 2
+
+
+========================================
+  Test Summary
+----------------------------------------
+  Total Tests:  26
+  Passed:       26
+  Failed:        0
+----------------------------------------
+  Result:  ALL TESTS PASSED
+========================================
+
+test/game_fsm_testbench.sv:303: $finish called at 486000 (1ps)

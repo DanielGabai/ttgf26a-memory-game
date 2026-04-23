@@ -1,0 +1,49 @@
+VCD info: dumpfile logs/synchronizer_testbench.vcd opened for output.
+
+========================================
+  Synchronizer Testbench
+========================================
+
+[TEST 1] Reset Verification
+[50000] Reset complete
+  PASS: sync_out after reset = 0x0 (expected 0x0)
+
+[TEST 2] Three-cycle propagation delay
+[100000] Reset complete
+  PASS: sync_out after 1 cycle (should still be 0) = 0x0 (expected 0x0)
+  PASS: sync_out after 2 cycles (should still be 0) = 0x0 (expected 0x0)
+  PASS: sync_out after 3 cycles = 0xa5 (expected 0xa5)
+
+[TEST 3] Input change propagates correctly
+[180000] Reset complete
+  PASS: sync_out stable at 0xFF = 0xff (expected 0xff)
+  PASS: sync_out still 0xFF after 1 cycle = 0xff (expected 0xff)
+  PASS: sync_out still 0xFF after 2 cycles = 0xff (expected 0xff)
+  PASS: sync_out now 0x00 after 3 cycles = 0x0 (expected 0x0)
+
+[TEST 4] Reset mid-stream clears output
+[290000] Reset complete
+  PASS: sync_out stable at 0xC3 = 0xc3 (expected 0xc3)
+  PASS: sync_out cleared by reset = 0x0 (expected 0x0)
+
+[TEST 5] All-ones and all-zeros
+[380000] Reset complete
+  PASS: sync_out all-ones = 0xff (expected 0xff)
+  PASS: sync_out all-zeros = 0x0 (expected 0x0)
+
+[TEST 6] Rapid toggle settles correctly
+[490000] Reset complete
+  PASS: sync_out settles to 0x7F = 0x7f (expected 0x7f)
+
+
+========================================
+  Test Summary
+----------------------------------------
+  Total Tests:  13
+  Passed:       13
+  Failed:        0
+----------------------------------------
+  Result:  ALL TESTS PASSED
+========================================
+
+test/synchronizer_testbench.sv:186: $finish called at 520000 (1ps)

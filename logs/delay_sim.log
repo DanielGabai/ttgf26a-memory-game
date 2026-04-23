@@ -1,0 +1,72 @@
+VCD info: dumpfile logs/delay_testbench.vcd opened for output.
+
+========================================
+  delay Testbench
+========================================
+
+[TEST 1] Reset Verification
+[45000] Reset complete
+  PASS: finish = 0 (expected 0)
+  PASS: counter = 0 (expected 0)
+
+[TEST 2] Load Delay Value
+[95000] Reset complete
+[125000] Loaded delay bit index = 3
+  PASS: adj_delay = 3 (expected 3)
+  PASS: finish (before counting) = 0 (expected 0)
+
+[TEST 3] Counter counts while enabled
+[175000] Reset complete
+[205000] Loaded delay bit index = 3
+  PASS: finish (after 4 cycles) = 0 (expected 0)
+  counter = 3
+
+[TEST 4] Finish asserts when watched bit is set
+[295000] Reset complete
+[325000] Loaded delay bit index = 3
+  PASS: finish (after 9 cycles) = 1 (expected 1)
+  counter = 8
+
+[TEST 5] Counter stops when finish is high
+[465000] Reset complete
+[495000] Loaded delay bit index = 3
+  PASS: finish (still high) = 1 (expected 1)
+  PASS: counter (unchanged) = 8 (expected 8)
+
+[TEST 6] Hard Reset clears counter mid-count
+[685000] Reset complete
+[715000] Loaded delay bit index = 4
+[815000] Reset complete
+  PASS: counter (after reset) = 0 (expected 0)
+  PASS: finish (after reset) = 0 (expected 0)
+
+[TEST 7] Different delay value (bit 1)
+[865000] Reset complete
+[895000] Loaded delay bit index = 1
+  PASS: finish (after 2 cycles) = 0 (expected 0)
+  PASS: finish (after 3 cycles) = 1 (expected 1)
+
+[TEST 8] Counter does not count when disabled
+[975000] Reset complete
+[1005000] Loaded delay bit index = 4
+  PASS: counter (en=0, unchanged) = 0 (expected 0)
+  PASS: finish (en=0) = 0 (expected 0)
+
+[TEST 9] Auto-Reset clears counter when 'en' drops
+[1155000] Reset complete
+[1185000] Loaded delay bit index = 4
+  counter before drop = 4
+  PASS: counter (after en dropped) = 0 (expected 0)
+
+
+========================================
+  Test Summary
+----------------------------------------
+  Total Tests:  15
+  Passed:       15
+  Failed:        0
+----------------------------------------
+  Result:  ALL TESTS PASSED
+========================================
+
+test/delay_testbench.sv:229: $finish called at 1255000 (1ps)

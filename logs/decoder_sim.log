@@ -1,0 +1,34 @@
+VCD info: dumpfile logs/decoder_testbench.vcd opened for output.
+
+========================================
+  7-Segment Decoder Testbench
+========================================
+
+[TEST 1] Initial State (Input 0)
+[45000] Reset complete
+  PASS: segments(0) = 0111111 (expected 0111111)
+
+[TEST 2] Basic Functionality (0-9)
+  PASS: segments(1) = 0000110 (expected 0000110)
+  PASS: segments(2) = 1011011 (expected 1011011)
+  PASS: segments(3) = 1001111 (expected 1001111)
+  PASS: segments(4) = 1100110 (expected 1100110)
+  PASS: segments(5) = 1101101 (expected 1101101)
+  PASS: segments(6) = 1111100 (expected 1111100)
+  PASS: segments(7) = 0000111 (expected 0000111)
+
+[TEST 3] All inputs covered (no invalid cases for 3-bit input)
+  PASS: segments(0) revisit = 0111111 (expected 0111111)
+
+
+========================================
+  Test Summary
+----------------------------------------
+  Total Tests:   9
+  Passed:        9
+  Failed:        0
+----------------------------------------
+  Result:  ALL TESTS PASSED
+========================================
+
+test/decoder_testbench.sv:134: $finish called at 53000 (1ps)

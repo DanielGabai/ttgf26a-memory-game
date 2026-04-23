@@ -1,0 +1,66 @@
+[TB] Precomputed sequence: 5 3 7 3 7 6 6 4 4 4 1 0 2 0 0 5
+VCD info: dumpfile logs/top_testbench.vcd opened for output.
+
+========================================
+  tt_um_memory_game_top Testbench
+========================================
+
+[TEST 1] Reset and Idle State
+[45000] Reset complete
+  PASS: uo_out after reset (blank) = 0
+  PASS: uo_out idle (no start, still blank) = 0
+
+[TEST 2] Startup Sequence (LOAD_SEED → FILL_MEM → LOAD_DELAY)
+[115000] Reset complete
+  PASS: uo_out shows digit 0 (seg_mode=01) = 109
+
+[TEST 3] Round 0 — Correct Guess
+  PASS: uo_out blank during S_WAIT_INPUT = 0
+  PASS: uo_out after correct guess (blank S_ROUND_START) = 0
+
+[TEST 4] Round 1 — Gap Between Digits Visible
+  PASS: uo_out shows digit 0 in round 1 = 109
+  PASS: uo_out blank during S_SHOW_GAP = 0
+  PASS: uo_out shows digit 1 in round 1 = 79
+  PASS: uo_out blank during S_WAIT_INPUT round 1 = 0
+  PASS: uo_out after round 1 complete (blank) = 0
+
+[TEST 5] Wrong Guess → LOSE ('F' display)
+  PASS: uo_out[6:0] shows 'F' on lose = 113
+  PASS: uo_out[6:0] still 'F' (locked) = 113
+  PASS: uo_out[6:0] 'F' after spurious submit = 113
+
+[TEST 6] Global Reset from LOSE State
+  PASS: uo_out blank after global reset = 0
+  PASS: uo_out still blank (S_RST, no start) = 0
+
+[TEST 7] seg_mode Routing — WIN ('C' display)
+[2165000] Reset complete
+  PASS: uo_out[6:0] shows 'C' on win = 57
+  PASS: uo_out[6:0] still 'C' (locked) = 57
+
+[TEST 8] Global Reset from WIN State
+  PASS: uo_out blank after reset from WIN = 0
+
+[TEST 9] Global Reset Mid-Sequence (S_SHOW_SEQ)
+[34735000] Reset complete
+  PASS: uo_out shows digit before reset = 109
+  PASS: uo_out blank immediately after mid-game reset = 0
+
+[TEST 10] Correct Re-entry After Reset
+[35115000] Reset complete
+  PASS: uo_out shows digit 0 after re-entry = 109
+  PASS: uo_out blank after correct re-entry guess = 0
+
+
+========================================
+  Test Summary
+----------------------------------------
+  Total Tests:  22
+  Passed:       22
+  Failed:        0
+----------------------------------------
+  Result:  ALL TESTS PASSED
+========================================
+
+test/top_testbench.sv:402: $finish called at 35595000 (1ps)

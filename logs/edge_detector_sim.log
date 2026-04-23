@@ -1,0 +1,35 @@
+VCD info: dumpfile logs/edge_detector_testbench.vcd opened for output.
+
+========================================
+  edge_detector Testbench
+========================================
+
+[TEST 1] Reset Verification
+[45000] Reset complete
+  PASS: pulse_out after reset = 0 (expected 0)
+
+[TEST 2] Basic Functionality
+[95000] Reset complete
+  PASS: pulse_out on rising edge = 0 (expected 0)
+  PASS: pulse_out before active = 0 (expected 0)
+  PASS: pulse_out active high = 1 (expected 1)
+  PASS: pulse_out cleared = 0 (expected 0)
+
+[TEST 3] Edge Cases
+[195000] Reset complete
+  PASS: pulse_out while held high = 0 (expected 0)
+  PASS: pulse_out on release = 1 (expected 1)
+  PASS: pulse_out while held low = 0 (expected 0)
+
+
+========================================
+  Test Summary
+----------------------------------------
+  Total Tests:   8
+  Passed:        8
+  Failed:        0
+----------------------------------------
+  Result:  ALL TESTS PASSED
+========================================
+
+test/edge_detector_testbench.sv:153: $finish called at 315000 (1ps)

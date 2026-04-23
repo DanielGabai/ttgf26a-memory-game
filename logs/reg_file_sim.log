@@ -1,0 +1,50 @@
+VCD info: dumpfile logs/reg_file_testbench.vcd opened for output.
+
+============================================
+  reg_file Testbench (16 Registers)
+============================================
+
+[TEST 1] Single Write and Read
+  PASS: reg[0] after write 0x5 = 0x5 (expected 0x5)
+
+[TEST 2] Write and Read All 16 Registers
+  PASS: reg[0] = 0x0 (expected 0x0)
+  PASS: reg[1] = 0x1 (expected 0x1)
+  PASS: reg[2] = 0x2 (expected 0x2)
+  PASS: reg[3] = 0x3 (expected 0x3)
+  PASS: reg[4] = 0x4 (expected 0x4)
+  PASS: reg[5] = 0x5 (expected 0x5)
+  PASS: reg[6] = 0x6 (expected 0x6)
+  PASS: reg[7] = 0x7 (expected 0x7)
+  PASS: reg[8] = 0x0 (expected 0x0)
+  PASS: reg[9] = 0x1 (expected 0x1)
+  PASS: reg[10] = 0x2 (expected 0x2)
+  PASS: reg[11] = 0x3 (expected 0x3)
+  PASS: reg[12] = 0x4 (expected 0x4)
+  PASS: reg[13] = 0x5 (expected 0x5)
+  PASS: reg[14] = 0x6 (expected 0x6)
+  PASS: reg[15] = 0x7 (expected 0x7)
+
+[TEST 3] Overwrite a High-Address Register (reg[15])
+  PASS: reg[15] first write 0x6 = 0x6 (expected 0x6)
+  PASS: reg[15] overwrite 0x3 = 0x3 (expected 0x3)
+
+[TEST 4] Boundary Register Addresses (0 and 15)
+  PASS: reg[0] (first) = 0x1 (expected 0x1)
+  PASS: reg[15] (last) = 0x7 (expected 0x7)
+
+[TEST 5] Write Enable Deasserted
+  PASS: reg[8] unchanged (we=0) = 0x4 (expected 0x4)
+
+
+============================================
+  Test Summary
+--------------------------------------------
+  Total Tests:  22
+  Passed:       22
+  Failed:        0
+--------------------------------------------
+  Result:  ALL TESTS PASSED
+============================================
+
+test/reg_file_testbench.sv:194: $finish called at 466000 (1ps)
