@@ -46,7 +46,11 @@ module top_testbench;
     logic [2:0] tb_exp [0:15];
 
     // DUT
+`ifdef GL_TEST
+    tt_um_memory_game_top dut (
+`else
     tt_um_memory_game_top #(.DEBOUNCE_CYCLES(TB_DEBOUNCE)) dut (
+`endif
     .clk     (clk),
     .rst_n   (rst_n),
     .ui_in   (ui_in),
