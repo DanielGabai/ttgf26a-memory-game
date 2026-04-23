@@ -47,19 +47,21 @@ module top_testbench;
 
     // DUT
     tt_um_memory_game_top #(.DEBOUNCE_CYCLES(TB_DEBOUNCE)) dut (
-        .clk     (clk),
-        .rst_n   (rst_n),
-        .ui_in   (ui_in),
+    .clk     (clk),
+    .rst_n   (rst_n),
+    .ui_in   (ui_in),
+    .uo_out  (uo_out),
+    .uio_in  (uio_in),
+    .uio_out (uio_out),
+    .uio_oe  (uio_oe),
 `ifdef GL_TEST
-        ,.VPWR   (VPWR)
-        ,.VGND   (VGND)
+    .ena     (ena),
+    .VPWR    (VPWR),
+    .VGND    (VGND)
+`else
+    .ena     (ena)
 `endif
-        .uo_out  (uo_out),
-        .uio_in  (uio_in),
-        .uio_out (uio_out),
-        .uio_oe  (uio_oe),
-        .ena     (ena)
-    );
+);
 
     // Clock
     initial clk = 0;
