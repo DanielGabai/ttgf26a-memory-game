@@ -19,8 +19,9 @@
    Game Loop:
    1) All switches must be low to start, flip 7 high
    2) Enter seed value on switches[0:5], flip 6 high then low
-   3) Game starts
-   4) Flash a number on the seven seg; Wait for user input
+   3) Enter delay value on switches[0:4], flip 6 high then low
+   4) Game starts: fills memory with random sequence
+   5) Flash a number on the seven seg; Wait for user input
 
    FSM Rules:
    1) If switch[7] ever goes low, go to reset state

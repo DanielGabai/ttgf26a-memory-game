@@ -9,16 +9,24 @@ VCD info: dumpfile logs/game_fsm_testbench.vcd opened for output.
   PASS: ptr_reset (S_RST) = 1
   PASS: seg_mode (Blank) = 0
 
-[TEST 2] Initialization Sequence
-  PASS: lfsr_load = 1
-  PASS: lfsr_en = 1
-  PASS: reg_we = 1
-  PASS: index_inc = 1
-  PASS: delay_load = 1
-  PASS: ptr_reset = 1
+[TEST 2] Initialization Sequence: SEED stage
+  PASS: lfsr_load (S_WAIT_SEED_SUBMIT, should be 0) = 0
+  PASS: seg_mode  (S_WAIT_SEED_SUBMIT, blank) = 0
+  PASS: lfsr_load (S_LOAD_SEED) = 1
 
-[TEST 3] Round 0 Gameplay (Display & Guess)
-  PASS: ptr_reset (Round Start) = 1
+[TEST 3] Initialization Sequence: DELAY stage
+  PASS: delay_load (S_WAIT_DELAY_SUBMIT, should be 0) = 0
+  PASS: ptr_reset  (S_WAIT_DELAY_SUBMIT, should be 0) = 0
+  PASS: delay_load (S_LOAD_DELAY) = 1
+  PASS: ptr_reset  (S_LOAD_DELAY) = 1
+
+[TEST 4] Fill Memory
+  PASS: lfsr_en   (S_FILL_MEM) = 1
+  PASS: reg_we    (S_FILL_MEM) = 1
+  PASS: index_inc (S_FILL_MEM) = 1
+  PASS: ptr_reset (S_ROUND_START) = 1
+
+[TEST 5] Round 0 Gameplay (Display & Guess)
   PASS: seg_mode (Show Num) = 1
   PASS: delay_en (Running) = 1
   PASS: delay_en (Dropped to reset timer) = 0
@@ -26,34 +34,43 @@ VCD info: dumpfile logs/game_fsm_testbench.vcd opened for output.
   PASS: seg_mode (Blank for input) = 0
   PASS: round_inc (Round Beaten!) = 1
 
-[TEST 4] Round 1 Gameplay (Visual Gap & Multi-digit)
+[TEST 6] Round 1 Gameplay (Visual Gap & Multi-digit)
   PASS: seg_mode (Blank for gap) = 0
   PASS: delay_en (Running gap timer) = 1
   PASS: index_inc (Move to digit 2) = 1
   PASS: index_inc (Next guess) = 1
   PASS: round_inc (Should be 0) = 0
 
-[TEST 5] Lose Condition Lockout
+[TEST 7] Lose Condition Lockout
   PASS: seg_mode (Show F) = 3
   PASS: seg_mode (Still F) = 3
 
-[TEST 6] Global Reset (Switch 7 flipped low)
+[TEST 8] Global Reset (Switch 7 flipped low)
   PASS: seg_mode (Blank - Reset) = 0
   PASS: ptr_reset (Held in reset) = 1
 
-[TEST 7] Win Condition Lockout
+[TEST 9] Win Condition Lockout
   PASS: seg_mode (Show C) = 2
   PASS: seg_mode (Still C) = 2
+
+[TEST 10] No Seed Submit → FSM stays in S_WAIT_SEED_SUBMIT
+[595000] Reset complete
+  PASS: lfsr_load stays 0 without seed submit = 0
+  PASS: seg_mode stays blank in S_WAIT_SEED_SUBMIT = 0
+
+[TEST 11] No Delay Submit → FSM stays in S_WAIT_DELAY_SUBMIT
+  PASS: delay_load stays 0 without delay submit = 0
+  PASS: lfsr_en stays 0 in S_WAIT_DELAY_SUBMIT = 0
 
 
 ========================================
   Test Summary
 ----------------------------------------
-  Total Tests:  26
-  Passed:       26
+  Total Tests:  34
+  Passed:       34
   Failed:        0
 ----------------------------------------
   Result:  ALL TESTS PASSED
 ========================================
 
-test/game_fsm_testbench.sv:303: $finish called at 486000 (1ps)
+test/game_fsm_testbench.sv:358: $finish called at 666000 (1ps)

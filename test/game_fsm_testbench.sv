@@ -96,6 +96,15 @@ module game_fsm_testbench;
         #1; // Wait for non-blocking assignments to commit before sampling outputs
     endtask
 
+    // Send a one-cycle submit_pulse to advance through a WAIT_*_SUBMIT state
+    task pulse_submit();
+        begin
+            submit_pulse <= 1;
+            wait_cycles(1);
+            submit_pulse <= 0;
+        end
+    endtask
+
     // --- Main Test Sequence ---
     initial begin
         $dumpfile("logs/game_fsm_testbench.vcd");
@@ -118,40 +127,61 @@ module game_fsm_testbench;
         $display("");
 
         // ---------------------------------------------------------
-        $display("[TEST 2] Initialization Sequence");
+        $display("[TEST 2] Initialization Sequence: SEED stage");
         // ---------------------------------------------------------
-        start_btn <= 1; // Flip switch 7 HIGH
-        wait_cycles(1); 
-        // Now in S_LOAD_SEED
-        check_value("lfsr_load", 1, lfsr_load);
-        
+        // S_RST → S_WAIT_SEED_SUBMIT when start_btn goes high
+        start_btn <= 1;
         wait_cycles(1);
-        // Now in S_FILL_MEM
-        check_value("lfsr_en", 1, lfsr_en);
-        check_value("reg_we", 1, reg_we);
-        check_value("index_inc", 1, index_inc);
-        
-        wait_cycles(3); // Let it loop a few times
-        mem_full <= 1;  // Top file signals memory is completely full
-        wait_cycles(1); 
-        // Now in S_LOAD_DELAY
-        mem_full <= 0;
-        check_value("delay_load", 1, delay_load);
-        check_value("ptr_reset", 1, ptr_reset);
+        // Now in S_WAIT_SEED_SUBMIT — no outputs asserted, waiting for pulse
+        check_value("lfsr_load (S_WAIT_SEED_SUBMIT, should be 0)", 0, lfsr_load);
+        check_value("seg_mode  (S_WAIT_SEED_SUBMIT, blank)", 0, seg_mode);
+
+        // Submit pulse → S_LOAD_SEED (1 cycle), then → S_WAIT_DELAY_SUBMIT
+        pulse_submit();
+        // #1 already applied inside wait_cycles, outputs reflect S_LOAD_SEED
+        check_value("lfsr_load (S_LOAD_SEED)", 1, lfsr_load);
         $display("");
 
         // ---------------------------------------------------------
-        $display("[TEST 3] Round 0 Gameplay (Display & Guess)");
+        $display("[TEST 3] Initialization Sequence: DELAY stage");
         // ---------------------------------------------------------
-        wait_cycles(1); 
+        wait_cycles(1);
+        // Now in S_WAIT_DELAY_SUBMIT — waiting for second submit pulse
+        check_value("delay_load (S_WAIT_DELAY_SUBMIT, should be 0)", 0, delay_load);
+        check_value("ptr_reset  (S_WAIT_DELAY_SUBMIT, should be 0)", 0, ptr_reset);
+
+        // Submit pulse → S_LOAD_DELAY (1 cycle), then → S_FILL_MEM
+        pulse_submit();
+        // outputs now reflect S_LOAD_DELAY
+        check_value("delay_load (S_LOAD_DELAY)", 1, delay_load);
+        check_value("ptr_reset  (S_LOAD_DELAY)", 1, ptr_reset);
+        $display("");
+
+        // ---------------------------------------------------------
+        $display("[TEST 4] Fill Memory");
+        // ---------------------------------------------------------
+        wait_cycles(1);
+        // Now in S_FILL_MEM
+        check_value("lfsr_en   (S_FILL_MEM)", 1, lfsr_en);
+        check_value("reg_we    (S_FILL_MEM)", 1, reg_we);
+        check_value("index_inc (S_FILL_MEM)", 1, index_inc);
+
+        wait_cycles(3); // Let it loop a few times
+        mem_full <= 1;  // Top file signals memory is completely full
+        wait_cycles(1);
         // Now in S_ROUND_START
-        check_value("ptr_reset (Round Start)", 1, ptr_reset);
-        
+        mem_full <= 0;
+        check_value("ptr_reset (S_ROUND_START)", 1, ptr_reset);
+        $display("");
+
+        // ---------------------------------------------------------
+        $display("[TEST 5] Round 0 Gameplay (Display & Guess)");
+        // ---------------------------------------------------------
         wait_cycles(1);
         // Now in S_SHOW_SEQ
         check_value("seg_mode (Show Num)", 1, seg_mode);
         check_value("delay_en (Running)", 1, delay_en);
-        
+
         delay_finish <= 1; // Timer ends
         wait_cycles(1);
         // Now in S_SEQ_DONE
@@ -160,11 +190,11 @@ module game_fsm_testbench;
         #1; // Let round_done NBA commit before sampling ptr_reset
         check_value("delay_en (Dropped to reset timer)", 0, delay_en);
         check_value("ptr_reset (Prep for input)", 1, ptr_reset);
-        
+
         wait_cycles(1);
         // Now in S_WAIT_INPUT
         check_value("seg_mode (Blank for input)", 0, seg_mode);
-        
+
         // User guesses correctly
         match <= 1;
         submit_pulse <= 1;
@@ -175,7 +205,7 @@ module game_fsm_testbench;
         $display("");
 
         // ---------------------------------------------------------
-        $display("[TEST 4] Round 1 Gameplay (Visual Gap & Multi-digit)");
+        $display("[TEST 6] Round 1 Gameplay (Visual Gap & Multi-digit)");
         // ---------------------------------------------------------
         wait_cycles(1);
         // Back to S_ROUND_START
@@ -186,18 +216,18 @@ module game_fsm_testbench;
         // Now in S_SEQ_DONE
         delay_finish <= 0;
         round_done <= 0; // NOT done yet, need to show 2 digits this round
-        
+
         wait_cycles(1);
         // Now in S_SHOW_GAP
         check_value("seg_mode (Blank for gap)", 0, seg_mode);
         check_value("delay_en (Running gap timer)", 1, delay_en);
-        
+
         delay_finish <= 1;
         wait_cycles(1);
         // Now in S_GAP_DONE
         delay_finish <= 0;
         check_value("index_inc (Move to digit 2)", 1, index_inc);
-        
+
         wait_cycles(1);
         // Now in S_SHOW_SEQ (Digit 2)
         delay_finish <= 1;
@@ -207,7 +237,7 @@ module game_fsm_testbench;
         round_done <= 1; // Now we are done showing
         wait_cycles(1);
         // Now in S_WAIT_INPUT
-        
+
         // User guesses digit 1 correctly
         match <= 1;
         submit_pulse <= 1;
@@ -220,7 +250,7 @@ module game_fsm_testbench;
         $display("");
 
         // ---------------------------------------------------------
-        $display("[TEST 5] Lose Condition Lockout");
+        $display("[TEST 7] Lose Condition Lockout");
         // ---------------------------------------------------------
         wait_cycles(1);
         // Back in S_WAIT_INPUT for digit 2
@@ -229,18 +259,18 @@ module game_fsm_testbench;
         wait_cycles(1);
         // Now in S_CHECK_INPUT
         submit_pulse <= 0;
-        
+
         wait_cycles(1);
         // Now in S_LOSE
         check_value("seg_mode (Show F)", 3, seg_mode); // 2'b11 = 3
-        
+
         // Ensure it stays locked
         wait_cycles(5);
         check_value("seg_mode (Still F)", 3, seg_mode);
         $display("");
 
         // ---------------------------------------------------------
-        $display("[TEST 6] Global Reset (Switch 7 flipped low)");
+        $display("[TEST 8] Global Reset (Switch 7 flipped low)");
         // ---------------------------------------------------------
         start_btn <= 0; // User flips switch down
         wait_cycles(2);
@@ -249,38 +279,63 @@ module game_fsm_testbench;
         $display("");
 
         // ---------------------------------------------------------
-        $display("[TEST 7] Win Condition Lockout");
+        $display("[TEST 9] Win Condition Lockout");
         // ---------------------------------------------------------
-        // Fast forward to input check
+        // Fast forward through full init sequence with submit pulses
         start_btn <= 1;
-        wait_cycles(1); // LOAD_SEED
-        wait_cycles(1); // FILL_MEM
+        wait_cycles(1);         // S_RST → S_WAIT_SEED_SUBMIT
+        pulse_submit();         // S_WAIT_SEED_SUBMIT → S_LOAD_SEED → S_WAIT_DELAY_SUBMIT
+        wait_cycles(1);         // S_WAIT_DELAY_SUBMIT
+        pulse_submit();         // S_WAIT_DELAY_SUBMIT → S_LOAD_DELAY → S_FILL_MEM
+        wait_cycles(1);         // S_FILL_MEM
         mem_full <= 1;
-        wait_cycles(1); // LOAD_DELAY
+        wait_cycles(1);         // S_ROUND_START
         mem_full <= 0;
-        wait_cycles(1); // ROUND_START
-        wait_cycles(1); // SHOW_SEQ
+        wait_cycles(1);         // S_SHOW_SEQ
         delay_finish <= 1;
-        wait_cycles(1); // SEQ_DONE
+        wait_cycles(1);         // S_SEQ_DONE
         delay_finish <= 0;
         round_done <= 1;
-        wait_cycles(1); // WAIT_INPUT
-        
+        wait_cycles(1);         // S_WAIT_INPUT
+
         // Emulate beating round 15
         match <= 1;
         round_done <= 1;
-        mem_full <= 1; 
+        mem_full <= 1;
         submit_pulse <= 1;
         wait_cycles(1);
-        // CHECK_INPUT
+        // S_CHECK_INPUT
         submit_pulse <= 0;
-        
+
         wait_cycles(1);
         // Now in S_WIN
         check_value("seg_mode (Show C)", 2, seg_mode); // 2'b10 = 2
-        
+
         wait_cycles(5);
         check_value("seg_mode (Still C)", 2, seg_mode);
+        $display("");
+
+        // ---------------------------------------------------------
+        $display("[TEST 10] No Seed Submit → FSM stays in S_WAIT_SEED_SUBMIT");
+        // ---------------------------------------------------------
+        // Reset and verify FSM does NOT advance without the seed submit pulse
+        start_btn <= 0;
+        wait_cycles(2);
+        reset_dut();
+        start_btn <= 1;
+        wait_cycles(3); // Hold in S_WAIT_SEED_SUBMIT without pulsing submit
+        check_value("lfsr_load stays 0 without seed submit", 0, lfsr_load);
+        check_value("seg_mode stays blank in S_WAIT_SEED_SUBMIT", 0, seg_mode);
+        $display("");
+
+        // ---------------------------------------------------------
+        $display("[TEST 11] No Delay Submit → FSM stays in S_WAIT_DELAY_SUBMIT");
+        // ---------------------------------------------------------
+        // Continue from Test 10: send seed submit, then verify delay submit gating
+        pulse_submit();         // → S_LOAD_SEED → S_WAIT_DELAY_SUBMIT
+        wait_cycles(3);         // Hold without pulsing submit
+        check_value("delay_load stays 0 without delay submit", 0, delay_load);
+        check_value("lfsr_en stays 0 in S_WAIT_DELAY_SUBMIT", 0, lfsr_en);
         $display("");
 
 

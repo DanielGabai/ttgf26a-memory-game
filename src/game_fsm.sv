@@ -26,18 +26,20 @@ module game_fsm (
 
     typedef enum logic [3:0] {
         S_RST,          // 0: Idle, waiting for start_btn
-        S_LOAD_SEED,    // 1: Load seed into LFSR
-        S_FILL_MEM,     // 2: Auto-fill reg_file with 16 LFSR values
-        S_LOAD_DELAY,   // 3: Load delay setting, reset round_ptr
-        S_ROUND_START,  // 4: Reset index_ptr to 0 for playback
-        S_SHOW_SEQ,     // 5: Display current digit, wait for timer
-        S_SEQ_DONE,     // 6: 1-cycle state to drop delay_en to 0
-        S_SHOW_GAP,     // 7: Display blank screen, wait for timer
-        S_GAP_DONE,     // 8: 1-cycle state to drop delay_en and increment index
-        S_WAIT_INPUT,   // 9: Wait for user to flip submit switch
-        S_CHECK_INPUT,  // 10: Evaluate guess
-        S_WIN,          // 11: Display 'C'
-        S_LOSE          // 12: Display 'F'
+        S_WAIT_SEED_SUBMIT, // 1: Wait for seed submit pulse
+        S_LOAD_SEED,    // 2: Load seed into LFSR
+        S_WAIT_DELAY_SUBMIT, // 3: Wait for delay submit pulse
+        S_LOAD_DELAY,   // 4: Load delay setting, reset round_ptr
+        S_FILL_MEM,     // 5: Auto-fill reg_file with 16 LFSR values
+        S_ROUND_START,  // 6: Reset index_ptr to 0 for playback
+        S_SHOW_SEQ,     // 7: Display current digit, wait for timer
+        S_SEQ_DONE,     // 8: 1-cycle state to drop delay_en to 0
+        S_SHOW_GAP,     // 9: Display blank screen, wait for timer
+        S_GAP_DONE,     // 10: 1-cycle state to drop delay_en and increment index
+        S_WAIT_INPUT,   // 11: Wait for user to flip submit switch
+        S_CHECK_INPUT,  // 12: Evaluate guess
+        S_WIN,          // 13: Display 'C'
+        S_LOSE          // 14: Display 'F'
     } state_t;
 
     state_t state, next_state;
@@ -71,11 +73,25 @@ module game_fsm (
         case (state)
             S_RST: begin
                 ptr_reset = 1'b1;
-                if (start_btn) next_state = S_LOAD_SEED;
+                if (start_btn) next_state = S_WAIT_SEED_SUBMIT;
+            end
+
+            S_WAIT_SEED_SUBMIT: begin
+                if (submit_pulse) next_state = S_LOAD_SEED;
             end
 
             S_LOAD_SEED: begin
                 lfsr_load = 1'b1;
+                next_state = S_WAIT_DELAY_SUBMIT;
+            end
+
+            S_WAIT_DELAY_SUBMIT: begin
+                if (submit_pulse) next_state = S_LOAD_DELAY;
+            end
+
+            S_LOAD_DELAY: begin
+                delay_load = 1'b1;
+                ptr_reset = 1'b1;
                 next_state = S_FILL_MEM;
             end
 
@@ -83,13 +99,7 @@ module game_fsm (
                 lfsr_en = 1'b1;
                 reg_we = 1'b1;
                 index_inc = 1'b1;
-                if (mem_full) next_state = S_LOAD_DELAY;
-            end
-
-            S_LOAD_DELAY: begin
-                delay_load = 1'b1;
-                ptr_reset = 1'b1;
-                next_state = S_ROUND_START;
+                if (mem_full) next_state = S_ROUND_START;
             end
 
             S_ROUND_START: begin
